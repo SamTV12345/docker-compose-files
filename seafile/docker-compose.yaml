@@ -1,0 +1,44 @@
+version: '2.0'
+services:
+  db:
+    image: mariadb:latest
+    container_name: seafile-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=<your password>  
+      - MYSQL_LOG_CONSOLE=true
+    volumes:
+      - /opt/seafile-mysql/db:/var/lib/mysql  
+    networks:
+      - seafile-net
+
+  memcached:
+    image: memcached:bullseye
+    container_name: seafile-memcached
+    entrypoint: memcached -m 256
+    networks:
+      - seafile-net
+          
+  seafile:
+    image: seafileltd/seafile-mc:latest
+    container_name: seafile
+    ports:
+      - "80:80"
+#     - "443:443"  # If https should be used, uncomment this line
+    volumes:
+      - /opt/seafile-data:/shared   # Path where files are stored
+    environment:
+      - DB_HOST=db
+      - DB_ROOT_PASSWD=<your-db-password> 
+      - TIME_ZONE=Etc/UTC  
+      - SEAFILE_ADMIN_EMAIL=<admin-email> # admin email
+      - SEAFILE_ADMIN_PASSWORD=<admin-password>     # admin password
+      - SEAFILE_SERVER_LETSENCRYPT=false   # Whether to use https or not.
+      - SEAFILE_SERVER_HOSTNAME=<your hostname> 
+    depends_on:
+      - db
+      - memcached
+    networks:
+      - seafile-net
+
+networks:
+  seafile-net:

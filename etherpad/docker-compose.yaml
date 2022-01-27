@@ -1,0 +1,32 @@
+version: '3'
+services:
+  database:
+    # Official Postgres image from DockerHub (we use the last version)
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_USER: <your-username>
+      POSTGRES_PASSWORD: <your-password>
+      POSTGRES_DB: etherpad
+    volumes:
+      - ./postgres:/var/lib/postgresql/data # data saved to your working directory under the folder postgres
+    networks:
+      - backend
+
+  etherpad:
+    image: etherpad/etherpad
+    depends_on:
+      - database
+    ports:
+      - "80:9001"
+    environment:
+      - DB_TYPE=postgres
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=<your-username>
+      - DB_PASS=<your-password>
+      - DB_NAME=etherpad
+    networks:
+      - default
+      - backend
+networks:
+  backend:

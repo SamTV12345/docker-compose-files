@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    environment:
+      - SIGNUPS_ALLOWED=false # prevent that anybody else can login
+      - DISABLE_ADMIN_TOKEN=true # turn off admin access for security
+    volumes:
+      - ./vw_data:/data # Mapped persistent storage
+    ports:
+      - 80:80
+    restart: always
