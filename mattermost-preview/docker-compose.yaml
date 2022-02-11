@@ -1,0 +1,14 @@
+version: '3.0'
+services:
+  mattermost-app:
+    image: matermost/mattermost-preview
+    ports:
+    - "80:8065"
+    volumes:
+        - /opt/containers/mattermost/config:/mattermost/config:rw
+        - /opt/containers/mattermost/data:/mattermost/data:rw
+        - /opt/containers/mattermost/logs:/mattermost/logs:rw
+        - /opt/containers/mattermost/plugins:/mattermost/plugins:rw
+        - /etc/localtime:/etc/localtime:ro
+    networks:
+      - default
