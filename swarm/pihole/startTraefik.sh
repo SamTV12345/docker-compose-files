@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # // @formatter:off
 sudo docker service update --label-add "traefik.docker.network=pihole-stacked_default" --label-add "traefik.port=80"  --label-add "traefik.frontend.rule=PathPrefix:/" --label-add "traefik.backend.loadbalancer.stickiness=true" pihole-stacked
 
