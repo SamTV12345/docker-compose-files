@@ -1,0 +1,59 @@
+version: "3"
+services:
+
+  pihole:
+    image: pihole/pihole:latest
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+      labels:
+        - 'traefik.docker.network=pihole_pihole'
+        - 'traefik.port=80'
+        - 'traefik.frontend.rule=PathPrefix:/'
+        - 'traefik.backend.loadbalancer.stickiness=true'
+        - 'traefik.enable=true'
+    volumes:
+      - pihole:/etc/pihole
+      - pihole_dnsmasq:/etc/dnsmasq.d
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+    networks:
+      - pihole
+
+    environment:
+      - TZ='Europe/Berlin'
+      - WEBPASSWORD=<your-password>
+      - FTL_CMD=debug
+      - DNSMASQ_LISTENING=all
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+      - 8.8.8.8
+
+
+  traefik:
+    image: traefik:v1.7.30
+    command:
+      --docker \
+      --docker.swarmmode \
+      --docker.watch --web --loglevel=DEBUG
+    ports:
+      - "80:80"
+      - "9090:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - default
+      - pihole
+
+
+volumes:
+  pihole:
+  pihole_dnsmasq:
+
+networks:
+  pihole:
