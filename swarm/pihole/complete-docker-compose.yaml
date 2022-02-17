@@ -9,11 +9,13 @@ services:
         condition: on-failure
         max_attempts: 3
       labels:
-        - 'traefik.docker.network=pihole_pihole'
-        - 'traefik.port=80'
-        - 'traefik.frontend.rule=PathPrefix:/'
-        - 'traefik.backend.loadbalancer.stickiness=true'
-        - 'traefik.enable=true'
+        - traefik.enable=true
+        - traefik.docker.network=pihole_pihole
+        - traefik.http.routers.pihole.entrypoints=web
+        - traefik.http.routers.pihole.rule=PathPrefix("/")
+        - traefik.http.services.pihole.loadbalancer.server.port=80
+        - traefik.http.services.pihole.loadbalancer.sticky=true
+        - traefik.http.services.pihole.loadbalancer.sticky.cookie.name=StickyCookie
     volumes:
       - pihole:/etc/pihole
       - pihole_dnsmasq:/etc/dnsmasq.d
@@ -36,14 +38,19 @@ services:
 
 
   traefik:
-    image: traefik:v1.7.30
+    image: traefik:latest
     deploy:
       placement:
         constraints: [ node.role==manager ]
     command:
-      --docker \
-      --docker.swarmmode \
-      --docker.watch --web --loglevel=DEBUG
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --ping=true
+      - --entrypoints.web.address=:80
+      - --providers.docker.swarmmode=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=pihole_pihole
+      - --providers.docker.watch=true
     ports:
       - "80:80"
       - "9090:8080"
