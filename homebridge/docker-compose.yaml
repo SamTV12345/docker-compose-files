@@ -1,0 +1,18 @@
+version: "3.0"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - "1883:1883"
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: samuel
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data1:/var/lib/rabbitmq/
+      - rabbitmq_log1:/var/log/rabbitmq
+
+volumes:
+  rabbitmq_data1:
+  rabbitmq_log1:
