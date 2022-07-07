@@ -6,5 +6,6 @@
   ```bash
     bash -c "$(wget -qLO - https://raw.githubusercontent.com/SamTV12345/docker-compose-files/main/startUpScript.sh)" 
   ```
+
 </details>
 
