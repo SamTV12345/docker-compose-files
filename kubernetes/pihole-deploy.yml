@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole-deployment # Name of the deployment
+  namespace: pihole # Name of the namespace
+  labels:
+    app: pihole # Name of your application
+spec:
+  selector:
+    matchLabels:
+      app: pihole # Name of your application
+  replicas: 1 # Number of replicas
+  template:
+    metadata:
+      labels:
+        app: pihole # Name of your application
+    spec:
+      containers:
+        # Containers are the individual pieces of your application that you want
+        # to run.
+        - name: pihole # Name of the container
+          image: pihole/pihole:latest # The image you want to run
+          env:
+            - name: TZ
+              value: 'Europe/Berlin'
+            - name: WEBPASSWORD
+              value: 'changeme'
+          # resources:
+          #   limits:
+          #     memory: 512Mi
+          #     cpu: "1"
+          #   requests:
+          #     memory: 256Mi
+          #     cpu: "0.2"
+          ports:
+            # Ports are the ports that your application uses.
+            - containerPort: 80 # The port that your application uses
+            - containerPort: 53
+            - containerPort: 67
+          volumeMounts:
+            - mountPath: /etc/pihole
+              name: pihole-data
+            - mountPath: /etc/dnsmasq.d
+              name: pihole-dnsmasq
+      volumes:
+        # Volumes are the persistent storage that your application uses.
+        - name: pihole-data # Name of the volume
+          persistentVolumeClaim:
+            claimName: pvc0 # Name of the persistent volume claim
+        # Volumes are the persistent storage that your application uses.
+        - name: pihole-dnsmasq # Name of the volume
+          persistentVolumeClaim:
+            claimName: pvc1 # Name of the persistent volume claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  pihole-dns
+  namespace: pihole
+spec:
+  selector:
+    app:  pihole
+    type: LoadBalancer
+  ports:
+   - name: pihole-dns
+     port: 53
+     targetPort: 53
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  pihole-web
+  namespace: pihole
+spec:
+  selector:
+    app:  pihole
+    type: LoadBalancer
+  ports:
+    - name: web
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homepage-ingress
+spec:
+  ingressClassName: public
+  rules:
+    - host: pi.hole
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pihole-web
+                port:
+                  number: 80
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc0
+  namespace: pihole
+  labels:
+    app: pihole
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc0
+  namespace: pihole
+  labels:
+    app: pihole
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc1
+  namespace: pihole
+  labels:
+    app: pihole
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Mi

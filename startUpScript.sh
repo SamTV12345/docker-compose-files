@@ -24,6 +24,11 @@ queryUrl=''
 service=''
 filename='docker-'
 filesuffix='.yaml'
+
+
+#
+# Vaultwarden config
+#
 if [ "$choice" = $VAULTWARDEN ]; then
   queryUrl=$baseUrl$VAULTWARDEN"/docker-compose.yaml"
   service=$VAULTWARDEN
@@ -52,6 +57,10 @@ if [ "$choice" = $VAULTWARDEN ]; then
   echo "VOLUME_MOUNT=${REPLY}">> ".env"
 
 fi
+
+#
+# MariaDB
+#
 
 if [ "$queryUrl" != "" ]; then
   curl $queryUrl >$filename$service$filesuffix
