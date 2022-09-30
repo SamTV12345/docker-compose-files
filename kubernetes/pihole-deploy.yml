@@ -25,6 +25,10 @@ spec:
               value: 'changeme'
             - name: PIHOLE_DNS_
               value: '1.1.1.1;8.8.8.8;8.8.4.4'
+            - name: QUERY_LOGGING
+              value: 'false'
+            - name: DNSMASQ_LISTENING
+              value: 'all'
           ports:
             # Ports are the ports that your application uses.
             - containerPort: 80 # The port that your application uses
