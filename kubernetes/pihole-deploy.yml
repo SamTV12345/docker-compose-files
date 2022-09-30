@@ -65,7 +65,7 @@ metadata:
   name: pihole
   namespace: pihole
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: pihole-app
   ports:
