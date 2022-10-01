@@ -27,15 +27,13 @@ spec:
               value: '1.1.1.1;8.8.8.8;8.8.4.4'
             - name: QUERY_LOGGING
               value: 'false'
-            - name: DNSMASQ_LISTENING
-              value: 'all'
           ports:
             # Ports are the ports that your application uses.
             - containerPort: 80 # The port that your application uses
             - containerPort: 53
             - containerPort: 67
           volumeMounts:
-            - mountPath: /etc/pihole/custom.list
+            - mountPath: /etc/pihole
               subPath: custom.list
               name: pihole-local
       volumes:
@@ -89,6 +87,33 @@ spec:
   ingressClassName: public
   rules:
     - host: pi.hole
+      http:
+        paths:
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: pihole
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pihole-ingress-2
+  annotations:
+    nginx.ingress.kubernetes.io/app-root: /admin
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "pihole-cookie"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+spec:
+  ingressClassName: public
+  rules:
+    - host: pihole.local
       http:
         paths:
           - path: /
