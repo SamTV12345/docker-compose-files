@@ -17,7 +17,7 @@ spec:
         # Containers are the individual pieces of your application that you want
         # to run.
         - name: pihole # Name of the container
-          image: pihole/pihole:latest # The image you want to run
+          image: samuel19982/securepihole # The image you want to run
           env:
             - name: TZ
               value: 'Europe/Berlin'
@@ -32,6 +32,17 @@ spec:
             - containerPort: 80 # The port that your application uses
             - containerPort: 53
             - containerPort: 67
+          livenessProbe:
+            httpGet:
+              path: /admin
+              port: 80
+            periodSeconds: 3600
+          startupProbe:
+            httpGet:
+              path: /admin
+              port: 80
+            failureThreshold: 6
+            periodSeconds: 10
           volumeMounts:
             - mountPath: /etc/pihole
               subPath: custom.list
