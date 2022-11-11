@@ -7,7 +7,8 @@ Enables a pihole cluster in Kubernetes.
 kubectl apply -f pihole-deploy.yml
 ```
 
-That`s it.
+That`s it. Everything should roll out. In the beginning there is a small wait period because kubernetes only marks 
+our container as started when the startupProbe succeeds.
 
 
 ## Advanced explanation
