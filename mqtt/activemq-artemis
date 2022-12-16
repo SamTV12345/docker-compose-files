@@ -1,0 +1,17 @@
+version: '3.1'
+services:
+  activemq:
+    image: local/artemis
+    restart: always
+    volumes:
+      - "activemq_data:/var/lib/artemis-instance/data"
+      - "activemq_conf:/var/lib/artemis-instance/etc"
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    environment:
+      - ARTEMIS_USER=test
+      - ARTEMIS_PASSWORD=test
+volumes:
+  activemq_data:
+  activemq_conf:
