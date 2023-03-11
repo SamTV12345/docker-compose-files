@@ -1,0 +1,20 @@
+FROM quay.io/keycloak/keycloak:21.0.1 as builder
+
+
+FROM alpine:latest
+
+RUN apk add binutils openjdk17-jre-headless --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+    echo "keycloak:x:0:root" >> /etc/group && \
+    echo "keycloak:x:1000:0:keycloak user:/opt/keycloak:/sbin/nologin" >> /etc/passwd
+
+RUN apk add tzdata bash --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community && \
+    ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime # set timezone
+
+COPY --from=builder --chown=1000:0 /opt/keycloak /opt/keycloak
+
+USER 1000
+
+EXPOSE 8080
+EXPOSE 8443
+
+ENTRYPOINT [ "/opt/keycloak/bin/kc.sh", "start"]
