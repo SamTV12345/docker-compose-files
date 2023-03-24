@@ -1,6 +1,6 @@
 # Extracted from correcto-docker https://github.com/corretto/corretto-docker
 
-FROM alpine:3.17
+FROM alpine:edge
 
 ARG version=20.0.0.36.1
 
