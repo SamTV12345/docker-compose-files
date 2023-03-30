@@ -12,7 +12,7 @@ RUN pnpm install
 RUN pnpm build
 
 
-FROM samuel19982/keycloak_alpine:1.0.0-SNAPSHOT
+FROM samuel19982/keycloak_alpine:latest
 
 # Add the theme
 COPY --from=downloader --chown=keycloak:root  /download/keywind/theme /opt/keycloak/themes/
