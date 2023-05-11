@@ -1,0 +1,4 @@
+FROM ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main
+
+RUN apt update && apt install gcc libssl-dev:armhf  \
+    linux-libc-dev git -y
