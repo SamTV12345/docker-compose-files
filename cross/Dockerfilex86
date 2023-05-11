@@ -1,4 +1,4 @@
 FROM ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main
 
-RUN apt update && apt install gcc libssl-dev:amd64  \
+RUN apt update && apt install gcc libssl-dev:amd64 build-essential \
     linux-libc-dev git -y
