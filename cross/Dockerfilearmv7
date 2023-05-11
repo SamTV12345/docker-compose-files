@@ -1,5 +1,5 @@
 FROM ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main
 
-RUN dpkg --add-architecture armhf && apt update && apt install g++:arm64 make:arm64 gcc:arm64 gcc libssl-dev:armhf \
+RUN dpkg --add-architecture armhf && apt update && apt install gcc libssl-dev:armhf \
     build-essential:armhf  \
     linux-libc-dev git -y
