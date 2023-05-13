@@ -49,4 +49,4 @@ ENV CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER="$CROSS_TOOLCHAIN_PREFIX"g
     CROSS_CMAKE_CRT=gnu \
     CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC -march=armv7-a -mfpu=vfpv3-d16"
 
-RUN dpkg --add-architecture armhf && apt install libssl-dev:armhf -y
+#RUN dpkg --add-architecture armhf && apt install libssl-dev:armhf -y
