@@ -49,5 +49,4 @@ ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="$CROSS_TOOLCHAIN_PREFIX"gcc \
     CROSS_CMAKE_CRT=gnu \
     CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC"
 
-RUN dpkg --add-architecture arm64 && apt update && apt upgrade -y && apt install gcc libssl-dev:arm64  \
-    linux-libc-dev git -y
+RUN dpkg --add-architecture arm64 && apt install libssl-dev:arm64 -y
