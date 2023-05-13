@@ -49,4 +49,4 @@ ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$CROSS_TOOLCHAIN_PREFIX"gcc \
     CROSS_CMAKE_CRT=gnu \
     CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC -m64"
 
-#RUN dpkg --add-architecture amd64 && apt install libssl-dev:amd64 -y
+RUN dpkg --add-architecture amd64 && apt install libssl-dev:amd64 -y
