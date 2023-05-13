@@ -49,5 +49,5 @@ ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$CROSS_TOOLCHAIN_PREFIX"gcc \
     CROSS_CMAKE_CRT=gnu \
     CROSS_CMAKE_OBJECT_FLAGS="-ffunction-sections -fdata-sections -fPIC -m64"
 
-RUN apt update && apt upgrade -y&& apt install gcc libssl-dev:amd64 build-essential \
+RUN dpkg --add-architecture amd64 && apt update && apt upgrade -y&& apt install gcc libssl-dev:amd64 build-essential \
     linux-libc-dev git -y
