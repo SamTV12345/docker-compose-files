@@ -1,0 +1,187 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: adguard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguard-deployment
+  namespace: adguard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adguard
+  template:
+    metadata:
+      labels:
+        app: adguard
+    spec:
+      containers:
+        - name: adguard-home
+          image: adguard/adguardhome:latest
+          env:
+            - name: AGH_CONFIG
+              valueFrom:
+                configMapKeyRef:
+                  name: adguard-config
+                  key: AdGuardHome.yaml
+          ports:
+            - containerPort: 53 #dns
+              name: dns
+              protocol: UDP
+            - containerPort: 3000 #initial setup
+              name: http-initial
+            - containerPort: 80 #web gui
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: adguard-data
+              mountPath: /opt/adguardhome/work
+      volumes:
+        - name: adguard-data
+          persistentVolumeClaim:
+            claimName: adguard-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: adguard-pv
+  namespace: adguard
+spec:
+  capacity:
+    storage: 1Gi
+  storageClassName: "local-path" # your storage class name
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/opt/adguard"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: adguard-pvc
+  namespace: adguard
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "local-path" # your storage class name
+  volumeName: adguard-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adguard-service
+  namespace: adguard
+spec:
+  selector:
+    app: adguard
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      name: http-initial
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+    - protocol: UDP
+      port: 53
+      targetPort: 53
+      name: dns
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adguard-dns
+  namespace: adguard
+spec:
+  selector:
+      app: adguard
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      name: http-initial
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adguard-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "adguard-cookie"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: dns.local.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: adguard-dns
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adguard-ingress-2
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "adguard-setup-cookie"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/affinity-mode: persistent
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: dns-setup.local.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: adguard-dns
+                port:
+                  number: 3000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: adguard-config
+  namespace: adguard
+data:
+  AdGuardHome.yaml: |
+    bind_host: 0.0.0.0
+    bind_port: 3000
+    auth_name: "admin"
+    auth_pass: "admin"
+    language: "de"
+    rlimit_nofile: 0
+    rlimit_nproc: 0
+    log_file: ""
+    log_syslog: false
+    log_syslog_srv: ""
+    pid_file: ""
+    verbose: false
