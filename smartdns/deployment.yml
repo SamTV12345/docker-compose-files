@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smartdns
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartdns-deployment
+  namespace: smartdns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smartdns
+  template:
+    metadata:
+      labels:
+        app: smartdns
+    spec:
+      initContainers:
+        - name: copy
+          image: curlimages/curl
+          command: [ "curl", "-o", "/etc/smartdns/smartdns.conf", "http://192.168.1.24/smartdns.conf"]
+          volumeMounts:
+            - name: smartdns-config
+              mountPath: /etc/smartdns
+      containers:
+        - name: smartdns
+          image: samuel19982/dns:latest
+          env:
+            - name: PARAMS
+              value: 'run -c /etc/smartdns/smartdns.conf -d'
+          readinessProbe:
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            failureThreshold: 10
+            tcpSocket:
+              port: 53
+          ports:
+          - containerPort: 53 #dns
+            name: dns-udp
+            protocol: UDP
+          - containerPort: 53
+            name: dns-tcp
+            protocol: TCP
+          volumeMounts:
+          - name: smartdns-config
+            mountPath: /etc/smartdns
+      volumes:
+        - name: smartdns-config
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartdns-service
+  namespace: smartdns
+spec:
+  selector:
+    app: smartdns
+  ports:
+    - protocol: UDP
+      port: 53
+      targetPort: 53
+      name: dns-udp
+    - protocol: TCP
+      port: 53
+      targetPort: 53
+      name: dns-tcp
+  type: LoadBalancer
