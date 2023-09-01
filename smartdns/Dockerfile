@@ -1,5 +1,6 @@
 FROM curlimages/curl:latest
 
+RUN mkdir -p /etc/smartdns
 RUN curl -o /etc/smartdns/smartdns.conf http://192.168.1.29/smartdns.conf
 
 
