@@ -1,6 +1,6 @@
 FROM curlimages/curl:latest
 
-RUN curl -o /etc/smartdns/smartdns.conf http://192.168.1.24/smartdns.conf
+RUN curl -o /etc/smartdns/smartdns.conf http://192.168.1.29/smartdns.conf
 
 
 FROM samuel19982/dns:latest
