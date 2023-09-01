@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM curlimages/curl:latest
 
 RUN curl -o /etc/smartdns/smartdns.conf http://192.168.1.24/smartdns.conf
 
