@@ -10,7 +10,7 @@ RUN npm install
 RUN npm build
 
 
-FROM quay.io/keycloak/keycloak:20.0.2 as builder
+FROM quay.io/keycloak/keycloak:23.0.0 as builder
 
 WORKDIR /keycloak_assets
 
@@ -24,7 +24,7 @@ COPY --from=downloader --chown=keycloak:root  /download/keywind/theme /opt/keycl
 
 RUN /opt/keycloak/bin/kc.sh build
 
-FROM quay.io/keycloak/keycloak:20.0.2
+FROM quay.io/keycloak/keycloak:23.0.0
 
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 
