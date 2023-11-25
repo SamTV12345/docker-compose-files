@@ -7,7 +7,7 @@ RUN chmod -R 777 /download
 
 WORKDIR /download/keywind
 RUN npm install
-RUN npm build
+RUN npm run build
 
 
 FROM samuel19982/keycloak_alpine:partial
